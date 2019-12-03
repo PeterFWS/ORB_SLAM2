@@ -26,22 +26,21 @@
 
 #include<ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
-
 #include<opencv2/core/core.hpp>
 
 #include"../../../include/System.h"
 
-#include<ros/ros.h>
+#include <ros/ros.h>
 #include "tf/transform_datatypes.h"
 #include <tf/transform_broadcaster.h>
 #include <DenseInput.h>
 using namespace std;
 
-ros::Publisher pose_pub; 
-ros::Publisher pub_dense;
 double old_max;
 double old_min;
 bool init = false;
+ros::Publisher pose_pub; 
+ros::Publisher pub_dense;
 
 class ImageGrabber
 {
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
 		cerr << endl << "Usage: rosrun ORB_SLAM2 Mono path_to_vocabulary path_to_settings" << endl;        
 		ros::shutdown();
 		return 1;
-	}    
+	}  
 
     // Create SLAM system. It initializes all system threads and gets ready to process frames.
 	ORB_SLAM2::System SLAM(argv[1],argv[2],ORB_SLAM2::System::MONOCULAR,true);
@@ -71,9 +70,10 @@ int main(int argc, char **argv)
 	ImageGrabber igb(&SLAM);
 
 	ros::NodeHandle nodeHandler;
-	ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage,&igb);
+	ros::Subscriber sub = nodeHandler.subscribe("/camera/image_raw", 1, &ImageGrabber::GrabImage, &igb);
 	pose_pub = nodeHandler.advertise<geometry_msgs::PoseStamped>("/camera_pose",1);
 	pub_dense = nodeHandler.advertise<svo_msgs::DenseInput>("/ORB/DenseInput",1);
+
 	ros::spin();
 
     // Stop all threads
@@ -103,11 +103,14 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 		return;
 	}
 
+	// ---------------------------------------------------------
+	// modification for REMODE
+	// ---------------------------------------------------------
 	cv::Mat pose = mpSLAM->TrackMonocular(cv_ptr->image,cv_ptr->header.stamp.toSec());
 	if (pose.empty())
 		return;
 	
-	cv::Mat  TWC=mpSLAM->mpTracker->mCurrentFrame.mTcw.inv();  
+	cv::Mat TWC= mpSLAM->mpTracker->mCurrentFrame.mTcw.inv();  
 	cv::Mat RWC= TWC.rowRange(0,3).colRange(0,3);  
 	cv::Mat tWC= TWC.rowRange(0,3).col(3);
 
@@ -138,14 +141,13 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 	double min_z = std::numeric_limits<double>::max();  
 	double max_z = std::numeric_limits<double>::min();  
 	bool flag = mpSLAM->mpTracker->mCurrentFrame.getSceneDepth(mpSLAM->mpTracker->mCurrentFrame,max_z,min_z);
-    //ROS_INFO("REACHED 2");
-    //ROS_INFO("Max: %f Min: %f",max_z,min_z);
+    // ROS_INFO("Max: %f Min: %f", max_z, min_z);
 	if(flag)
 	{
 		old_min = min_z;
 		old_max = max_z;
 		init = true;
-
+		// ROS_INFO("Max: %f Min: %f", old_max, old_min);
 	}
 	if(init)
 	{
@@ -173,8 +175,13 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 		msg_dense.pose.orientation.w = q.w();
 		pub_dense.publish(msg_dense); 
 
-	}
+		// cout << "publish dense msg: " << endl;
+		// cout << "stamp:" << msg_dense.header.stamp << endl;
+		// cout << "translation t <x, y, z>: " <<  msg_dense.pose.position.x << ", " << msg_dense.pose.position.y << ", " << msg_dense.pose.position.z << endl;
+		// cout << "quaternion q <x, y, z, w>: " << msg_dense.pose.orientation.x << ", " << msg_dense.pose.orientation.y << ", " << msg_dense.pose.orientation.z << ", " << msg_dense.pose.orientation.w << endl;
+		// cout << endl;
 
+	}
 }
 
 

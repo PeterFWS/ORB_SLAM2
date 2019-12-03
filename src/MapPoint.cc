@@ -105,7 +105,7 @@ void MapPoint::AddObservation(KeyFrame* pKF, size_t idx)
     if(pKF->mvuRight[idx]>=0)
         nObs+=2;
     else
-        nObs++;
+        nObs++; // monocular camera: mvuRight == -1
 }
 
 void MapPoint::EraseObservation(KeyFrame* pKF)
@@ -278,6 +278,7 @@ void MapPoint::ComputeDistinctiveDescriptors()
         Distances[i][i]=0;
         for(size_t j=i+1;j<N;j++)
         {
+            // Computes the Hamming distance between two ORB descriptors
             int distij = ORBmatcher::DescriptorDistance(vDescriptors[i],vDescriptors[j]);
             Distances[i][j]=distij;
             Distances[j][i]=distij;

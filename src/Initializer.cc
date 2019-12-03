@@ -30,25 +30,30 @@
 namespace ORB_SLAM2
 {
 
+// Fix the reference frame
 Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations)
 {
-    mK = ReferenceFrame.mK.clone();
-
-    mvKeys1 = ReferenceFrame.mvKeysUn;
-
-    mSigma = sigma;
+    
+    mK = ReferenceFrame.mK.clone(); // Calibration
+    
+    mvKeys1 = ReferenceFrame.mvKeysUn; // Keypoints from Reference Frame (Frame 1)
+    
+    mSigma = sigma; // Standard Deviation and Variance
     mSigma2 = sigma*sigma;
-    mMaxIterations = iterations;
+
+    mMaxIterations = iterations; // Ransac max iterations
 }
 
+// Computes in parallel a fundamental matrix and a homography
+// Selects a model and tries to recover the motion and the structure from motion
 bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
                              vector<cv::Point3f> &vP3D, vector<bool> &vbTriangulated)
 {
     // Fill structures with current keypoints and matches with reference frame
     // Reference Frame: 1, Current Frame: 2
-    mvKeys2 = CurrentFrame.mvKeysUn;
+    mvKeys2 = CurrentFrame.mvKeysUn; // Keypoints from Current Frame (Frame 2)
 
-    mvMatches12.clear();
+    mvMatches12.clear(); // Current Matches from Reference to Current
     mvMatches12.reserve(mvKeys2.size());
     mvbMatched1.resize(mvKeys1.size());
     for(size_t i=0, iend=vMatches12.size();i<iend; i++)
@@ -62,7 +67,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
             mvbMatched1[i]=false;
     }
 
-    const int N = mvMatches12.size();
+    const int N = mvMatches12.size(); // number of matches
 
     // Indices for minimum set selection
     vector<size_t> vAllIndices;
@@ -112,7 +117,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     float RH = SH/(SH+SF);
 
     // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
-    if(RH>0.40)
+    if(RH>0.80) // 0.8 is used for agricultural imagery
         return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
     else //if(pF_HF>0.6)
         return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
@@ -120,7 +125,7 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const vector<int> &vMatc
     return false;
 }
 
-
+// first Find H, then reconstruct H, why?
 void Initializer::FindHomography(vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21)
 {
     // Number of putative matches
@@ -481,6 +486,7 @@ bool Initializer::ReconstructF(vector<bool> &vbMatchesInliers, cv::Mat &F21, cv:
     cv::Mat R1, R2, t;
 
     // Recover the 4 motion hypotheses
+    // What is motion hypotheses??????
     DecomposeE(E21,R1,R2,t);  
 
     cv::Mat t1=t;
@@ -748,6 +754,7 @@ void Initializer::Triangulate(const cv::KeyPoint &kp1, const cv::KeyPoint &kp2, 
 
 void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2f> &vNormalizedPoints, cv::Mat &T)
 {
+    //Why normalize 2D key points like this?
     float meanX = 0;
     float meanY = 0;
     const int N = vKeys.size();
@@ -763,7 +770,7 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
     meanX = meanX/N;
     meanY = meanY/N;
 
-    float meanDevX = 0;
+    float meanDevX = 0; // deviation?
     float meanDevY = 0;
 
     for(int i=0; i<N; i++)
@@ -771,7 +778,7 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
         vNormalizedPoints[i].x = vKeys[i].pt.x - meanX;
         vNormalizedPoints[i].y = vKeys[i].pt.y - meanY;
 
-        meanDevX += fabs(vNormalizedPoints[i].x);
+        meanDevX += fabs(vNormalizedPoints[i].x); // fabs(): return the absolute value
         meanDevY += fabs(vNormalizedPoints[i].y);
     }
 
@@ -787,7 +794,7 @@ void Initializer::Normalize(const vector<cv::KeyPoint> &vKeys, vector<cv::Point2
         vNormalizedPoints[i].y = vNormalizedPoints[i].y * sY;
     }
 
-    T = cv::Mat::eye(3,3,CV_32F);
+    T = cv::Mat::eye(3,3,CV_32F); // eye(): return a identity matrix
     T.at<float>(0,0) = sX;
     T.at<float>(1,1) = sY;
     T.at<float>(0,2) = -meanX*sX;
@@ -907,7 +914,9 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const vector<cv::Ke
 }
 
 void Initializer::DecomposeE(const cv::Mat &E, cv::Mat &R1, cv::Mat &R2, cv::Mat &t)
-{
+{   
+    // Why decompose E?
+    // the result is R and t????
     cv::Mat u,w,vt;
     cv::SVD::compute(E,w,u,vt);
 

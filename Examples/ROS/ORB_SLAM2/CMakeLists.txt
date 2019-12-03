@@ -48,6 +48,7 @@ ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/../../../Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/../../../Thirdparty/g2o/lib/libg2o.so
 ${PROJECT_SOURCE_DIR}/../../../lib/libORB_SLAM2.so
+-lboost_system
 )
 
 # Node for monocular camera
@@ -59,21 +60,31 @@ target_link_libraries(Mono
 ${LIBS}
 )
 
+
 # Node for stereo camera
-rosbuild_add_executable(Stereo
-src/ros_stereo.cc
+# rosbuild_add_executable(Stereo
+# src/ros_stereo.cc
+# )
+
+# target_link_libraries(Stereo
+# ${LIBS}
+# )
+
+# # Node for RGB-D camera
+# rosbuild_add_executable(RGBD
+# src/ros_rgbd.cc
+# )
+
+# target_link_libraries(RGBD
+# ${LIBS}
+# )
+
+
+# Node for Remode_feeder
+rosbuild_add_executable(Remode_feeder
+src/ros_feed_remode.cc
 )
 
-target_link_libraries(Stereo
+target_link_libraries(Remode_feeder
 ${LIBS}
 )
-
-# Node for RGB-D camera
-rosbuild_add_executable(RGBD
-src/ros_rgbd.cc
-)
-
-target_link_libraries(RGBD
-${LIBS}
-)
-

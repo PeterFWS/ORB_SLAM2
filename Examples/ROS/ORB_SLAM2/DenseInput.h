@@ -44,8 +44,6 @@ struct DenseInput_
   (void)_alloc;
     }
 
-
-
    typedef  ::std_msgs::Header_<ContainerAllocator>  _header_type;
   _header_type header;
 

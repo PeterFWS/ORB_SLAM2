@@ -76,7 +76,7 @@ protected:
 
     bool CheckNewKeyFrames();
     void ProcessNewKeyFrame();
-    void CreateNewMapPoints();
+    void CreateNewMapPoints(); // Triangulate new MapPoints
 
     void MapPointCulling();
     void SearchInNeighbors();

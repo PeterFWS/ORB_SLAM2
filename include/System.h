@@ -22,6 +22,7 @@
 #ifndef SYSTEM_H
 #define SYSTEM_H
 
+#include<unistd.h>
 #include<string>
 #include<thread>
 #include<opencv2/core/core.hpp>
@@ -112,7 +113,7 @@ public:
     // SaveMap(const string &filename);
     // LoadMap(const string &filename);
 
-        // Tracker. It receives a frame and computes the associated camera pose.
+    // Tracker. It receives a frame and computes the associated camera pose.
     // It also decides when to insert a new keyframe, create some new MapPoints and
     // performs relocalization if tracking fails.
     Tracking* mpTracker;

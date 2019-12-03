@@ -96,6 +96,7 @@ public:
     void ComputeStereoFromRGBD(const cv::Mat &imDepth);
 
     // Backprojects a keypoint (if stereo/depth info available) into 3D world coordinates.
+    // 2D keypoint -> 3D MapPoint
     cv::Mat UnprojectStereo(const int &i);
 
 public:
@@ -187,7 +188,8 @@ public:
 
     static bool mbInitialComputations;
 
-    bool getSceneDepth(Frame& frame, double& depth_mean, double& depth_min);
+    bool getSceneDepth(Frame& frame, double& depth_mean, double& depth_min); // used for REMODE
+    
 private:
 
     // Undistort keypoints given OpenCV distortion parameters.
