@@ -5,10 +5,10 @@ Camera.fy: 348.449870
 Camera.cx: 344.483596
 Camera.cy: 188.808062
 
-Camera.k1: 0
-Camera.k2: 0
-Camera.p1: 0
-Camera.p2: 0
+Camera.k1: -0.174497
+Camera.k2: 0.027127
+Camera.p1: -0.000359
+Camera.p2: 0.000457
 
 # Camera frames per second 
 Camera.fps: 15
@@ -21,7 +21,7 @@ Camera.RGB: 1
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 4000 #2000
+ORBextractor.nFeatures: 2000 #2000
 
 # ORB Extractor: Scale factor between levels in the scale pyramid   
 ORBextractor.scaleFactor: 1.2 #1.2

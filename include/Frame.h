@@ -190,6 +190,9 @@ public:
 
     bool getSceneDepth(Frame& frame, double& depth_mean, double& depth_min); // used for REMODE
     
+    // bool btest;
+    float mf_min_y_pixel_coor;
+
 private:
 
     // Undistort keypoints given OpenCV distortion parameters.

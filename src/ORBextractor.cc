@@ -1033,14 +1033,6 @@ static void computeDescriptors(const Mat &image, vector<KeyPoint> &keypoints, Ma
         computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
 }
 
-// (Fangwen Shu)
-// sorting for keypoints
-struct mysortingclass
-{
-    bool operator()(cv::KeyPoint pt1, cv::KeyPoint pt2) { return (pt1.pt.y > pt2.pt.y); } // sort it as descending order
-} mysortingobject;
-
-
 void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoint> &_keypoints,
                               OutputArray _descriptors)
 {
@@ -1058,9 +1050,9 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
         TODO: 
         1. symply find the top keypoint and find a horizontal line, all the keypoints which are close to this line will be rejected
         but this has the problem of image which has not sky?
-        2. Tell if we could extract the edge line from the image, if yes, reject keypoints which are close the line; if no, treat it as normal way should be fine.
+        2. Tell if we could extract the sky from the image/ or mask the image, if yes, reject keypoints which are close the line; if no, treat it as normal way should be fine.
     */
-
+   
     if (_image.empty())
         return;
 
@@ -1122,32 +1114,6 @@ void ORBextractor::operator()(InputArray _image, InputArray _mask, vector<KeyPoi
         // And add the keypoints to the output
         _keypoints.insert(_keypoints.end(), keypoints.begin(), keypoints.end());
     }
-
-    /*
-    (Fangwen Shu)
-    TODO: 
-        1. symply find the top keypoint and find a horizontal line, all the keypoints which are close to this line will be rejected
-        but this has the problem of image which has not sky?
-        2. Tell if we could extract the edge line from the image, if yes, reject keypoints which are close the line; if no, treat it as normal way should be fine.
-    */
-    // TODO: strange, it make the slam not work anymore
-    // sort(keypoints.begin(), keypoints.end(), mysortingobject); // sort keypoints according to y coordinate, in descending order
-    // float max_y = keypoints[0].pt.y;
-    // std::cout << "max y in this image: " << max_y << endl;
-    // vector<int> id_where_erase;
-    // for (int i = 0; i < keypoints.size(); i++)
-    // {
-    //     if (fabs(max_y - keypoints[i].pt.y) < 30)
-    //         id_where_erase.push_back(i);
-    // }
-
-    // int count = 0;
-    // for (int i = 0; i < id_where_erase.size(); i++)
-    // {
-    //     keypoints.erase(keypoints.begin() + (id_where_erase[i] - count));
-    //     count++;
-    //     // N--;
-    // }
 
 }
 

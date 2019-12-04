@@ -47,7 +47,7 @@ Frame::Frame(const Frame &frame)
       mpReferenceKF(frame.mpReferenceKF), mnScaleLevels(frame.mnScaleLevels),
       mfScaleFactor(frame.mfScaleFactor), mfLogScaleFactor(frame.mfLogScaleFactor),
       mvScaleFactors(frame.mvScaleFactors), mvInvScaleFactors(frame.mvInvScaleFactors),
-      mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2)
+      mvLevelSigma2(frame.mvLevelSigma2), mvInvLevelSigma2(frame.mvInvLevelSigma2), mf_min_y_pixel_coor(frame.mf_min_y_pixel_coor)
 {
     for (int i = 0; i < FRAME_GRID_COLS; i++)
         for (int j = 0; j < FRAME_GRID_ROWS; j++)
@@ -170,6 +170,11 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
+// struct mysortingclass
+// {
+//     bool operator()(cv::KeyPoint pt1, cv::KeyPoint pt2) { return (pt1.pt.y < pt2.pt.y); } // sort it as increasing order
+// } mysortingobject;
+
 // Constructor for Monocular cameras.
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extractor, ORBVocabulary *voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     : mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor *>(NULL)),
@@ -187,7 +192,6 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
     mvLevelSigma2 = mpORBextractorLeft->GetScaleSigmaSquares();
     mvInvLevelSigma2 = mpORBextractorLeft->GetInverseScaleSigmaSquares();
 
-
     // we could do some process on the image here?
     // or we do some process in the function ExtractORB(0, imGray)?
     // ORB extraction
@@ -198,7 +202,42 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
     if (mvKeys.empty())
         return;
 
+    
+    // (Fangwen Shu)
+    // Here, is where the dirty work started!
+    mf_min_y_pixel_coor = imGray.rows;
     UndistortKeyPoints();
+    // cout << "minmum y: " << mf_min_y_pixel_coor << endl;
+    // cout << mDescriptors.rows << "=?" << N <<  endl;
+
+    vector<int> vn_index; // the index indicates where to keep the points
+    for (int i =0; i<N; i++)
+    {
+        if (fabs(mf_min_y_pixel_coor - mvKeysUn[i].pt.y) > 50) // should be some pixels away from the sky
+        {
+            vn_index.push_back(i);
+        }
+    }
+
+    N = vn_index.size(); // update N
+    vector<cv::KeyPoint> v_temp_mvKeysUn;
+    cv::Mat temp_Descriptors(N, 32, CV_8U);
+
+    for (int i = 0; i<N; i++)
+    {
+        v_temp_mvKeysUn.push_back(mvKeysUn[vn_index[i]]);
+        mDescriptors.row(vn_index[i]).copyTo(temp_Descriptors.row(i));
+    }
+
+    mDescriptors.create(N, 32, CV_8U);
+    temp_Descriptors.copyTo(mDescriptors); // update mDescriptors
+    mvKeysUn.clear(); // update mvKeysUn
+    mvKeysUn.reserve(N);
+    mvKeysUn.insert(mvKeysUn.end(), v_temp_mvKeysUn.begin(), v_temp_mvKeysUn.end());
+
+    //(Fangwen Shu)
+    // Here, is where the dirty work end!
+
 
     // Set no stereo information
     mvuRight = vector<float>(N, -1);
@@ -435,6 +474,7 @@ void Frame::UndistortKeyPoints()
     mat = mat.reshape(1);
 
     // Fill undistorted keypoint vector
+
     mvKeysUn.resize(N);
     for (int i = 0; i < N; i++)
     {
@@ -442,6 +482,11 @@ void Frame::UndistortKeyPoints()
         kp.pt.x = mat.at<float>(i, 0);
         kp.pt.y = mat.at<float>(i, 1);
         mvKeysUn[i] = kp;
+
+        // cout << kp.pt.y << endl;
+
+        if (mf_min_y_pixel_coor > mvKeysUn[i].pt.y)
+            mf_min_y_pixel_coor = mvKeysUn[i].pt.y;
     }
 }
 
