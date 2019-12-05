@@ -158,13 +158,13 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr &msg)
 	double min_z = std::numeric_limits<double>::max();
 	double max_z = std::numeric_limits<double>::min();
 	bool flag = mpSLAM->mpTracker->mCurrentFrame.getSceneDepth(mpSLAM->mpTracker->mCurrentFrame, max_z, min_z);
-	// ROS_INFO("Max: %f Min: %f", max_z, min_z);
+
 	if (flag)
 	{
+		// ROS_INFO("flag: true");
 		old_min = min_z;
 		old_max = max_z;
 		init = true;
-		// ROS_INFO("Max: %f Min: %f", old_max, old_min);
 	}
 	if (init)
 	{
@@ -190,5 +190,6 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr &msg)
 		msg_dense.pose.orientation.y = q.y();
 		msg_dense.pose.orientation.z = q.z();
 		msg_dense.pose.orientation.w = q.w();
+		pub_dense.publish(msg_dense);
 	}
 }
