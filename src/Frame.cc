@@ -202,20 +202,21 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
     if (mvKeys.empty())
         return;
 
-    
     // (Fangwen Shu)
-    // Here, is where the dirty work started!
+    // ---------------------------------------------------------
+    // modification for Rosario dataset
+    // ---------------------------------------------------------
     mf_min_y_pixel_coor = imGray.rows;
-    UndistortKeyPoints();
+    UndistortKeyPoints(); // inside this function we will get the minimum y pixel coordinate of each frame
     // cout << "minmum y: " << mf_min_y_pixel_coor << endl;
     // cout << mDescriptors.rows << "=?" << N <<  endl;
 
     vector<int> vn_index; // the index indicates where to keep the points
-    for (int i =0; i<N; i++)
+    for (int i = 0; i < N; i++)
     {
         if (fabs(mf_min_y_pixel_coor - mvKeysUn[i].pt.y) > 50) // should be some pixels away from the sky
         {
-            vn_index.push_back(i);
+            vn_index.push_back(i); // close points, good
         }
     }
 
@@ -223,7 +224,7 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
     vector<cv::KeyPoint> v_temp_mvKeysUn;
     cv::Mat temp_Descriptors(N, 32, CV_8U);
 
-    for (int i = 0; i<N; i++)
+    for (int i = 0; i < N; i++)
     {
         v_temp_mvKeysUn.push_back(mvKeysUn[vn_index[i]]);
         mDescriptors.row(vn_index[i]).copyTo(temp_Descriptors.row(i));
@@ -231,13 +232,13 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
 
     mDescriptors.create(N, 32, CV_8U);
     temp_Descriptors.copyTo(mDescriptors); // update mDescriptors
-    mvKeysUn.clear(); // update mvKeysUn
+    mvKeysUn.clear();
     mvKeysUn.reserve(N);
-    mvKeysUn.insert(mvKeysUn.end(), v_temp_mvKeysUn.begin(), v_temp_mvKeysUn.end());
+    mvKeysUn.insert(mvKeysUn.end(), v_temp_mvKeysUn.begin(), v_temp_mvKeysUn.end()); // update mvKeysUn
 
-    //(Fangwen Shu)
-    // Here, is where the dirty work end!
-
+    // ---------------------------------------------------------
+    // modification end
+    // ---------------------------------------------------------
 
     // Set no stereo information
     mvuRight = vector<float>(N, -1);
