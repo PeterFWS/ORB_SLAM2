@@ -170,11 +170,6 @@ Frame::Frame(const cv::Mat &imGray, const cv::Mat &imDepth, const double &timeSt
     AssignFeaturesToGrid();
 }
 
-// struct mysortingclass
-// {
-//     bool operator()(cv::KeyPoint pt1, cv::KeyPoint pt2) { return (pt1.pt.y < pt2.pt.y); } // sort it as increasing order
-// } mysortingobject;
-
 // Constructor for Monocular cameras.
 Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extractor, ORBVocabulary *voc, cv::Mat &K, cv::Mat &distCoef, const float &bf, const float &thDepth)
     : mpORBvocabulary(voc), mpORBextractorLeft(extractor), mpORBextractorRight(static_cast<ORBextractor *>(NULL)),
@@ -209,12 +204,12 @@ Frame::Frame(const cv::Mat &imGray, const double &timeStamp, ORBextractor *extra
     mf_min_y_pixel_coor = imGray.rows;
     UndistortKeyPoints(); // inside this function we will get the minimum y pixel coordinate of each frame
     // cout << "minmum y: " << mf_min_y_pixel_coor << endl;
-    // cout << mDescriptors.rows << "=?" << N <<  endl;
+    // cout << mDescriptors.rows << "=?" << N << endl;
 
     vector<int> vn_index; // the index indicates where to keep the points
     for (int i = 0; i < N; i++)
     {
-        if (fabs(mf_min_y_pixel_coor - mvKeysUn[i].pt.y) > 50) // should be some pixels away from the sky
+        if (fabs(mf_min_y_pixel_coor - mvKeysUn[i].pt.y) > 70) // should be some pixels away from the sky
         {
             vn_index.push_back(i); // close points, good
         }

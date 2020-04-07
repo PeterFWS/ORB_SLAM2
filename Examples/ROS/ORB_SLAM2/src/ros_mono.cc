@@ -115,7 +115,7 @@ void ImageGrabber::GrabImage(const sensor_msgs::ImageConstPtr &msg)
 	int n_rows = cv_ptr_rgb->image.rows;
 	for (int i = 0; i < n_rows; i++)
 	{
-		if (i <= f_mask_position_y + 10)
+		if (i <= (f_mask_position_y + 30))
 			cv_ptr_rgb->image.row(i).setTo(cv::Scalar(0));
 		else
 			break;
