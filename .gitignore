@@ -2,6 +2,11 @@
 # common for all
 /build/
 /Examples/ROS/ORB_SLAM2/build/
+/lib/libORB_SLAM2.so
+Examples/Monocular/mono_kitti
+Examples/Monocular/mono_tum
+Examples/RGB-D/rgbd_tum
+Examples/Stereo/stereo_kitti
 /Thirdparty/
 KeyFrameTrajectory.txt
 /Vocabulary/
