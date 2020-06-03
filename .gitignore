@@ -1,0 +1,12 @@
+# git config --global core.excludesfile ~/.gitignore
+# common for all
+/build/
+/Examples/ROS/ORB_SLAM2/build/
+/Thirdparty/
+KeyFrameTrajectory.txt
+/Vocabulary/
+/backup_trajectory/
+# IDE specific files
+# PLEASE ADD YOUR IDE/EDITOR SPECIFIC FILES HERE
+# TO PREVENT COMITTING THEM
+.vscode
