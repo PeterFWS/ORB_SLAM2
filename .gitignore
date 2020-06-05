@@ -11,6 +11,7 @@ Examples/Stereo/stereo_kitti
 KeyFrameTrajectory.txt
 /Vocabulary/
 /backup_trajectory/
+/Examples/ROS/ORB_SLAM2/Mono
 # IDE specific files
 # PLEASE ADD YOUR IDE/EDITOR SPECIFIC FILES HERE
 # TO PREVENT COMITTING THEM
