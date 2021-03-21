@@ -6,7 +6,6 @@ Modified version of ORB-SLAM2
 
 ```
 Author: Fangwen Shu
-E-Mail: Fangwen.Shu@dfki.de
 ```
 
 The repository can be used for initializing offline dense reconstruction (MVS) in COLMAP. See another repository of mine: https://github.com/PeterFWS/ORB_SLAM_COLOMAP
